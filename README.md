@@ -14,11 +14,11 @@
 
 
 ## Paypal
-### 1
+## 1
 <img src="https://image.ibb.co/iAkk0U/Screenshot_20180912_112924.jpg" width="300" height="500">
-### 2
+## 2
 <img src="https://image.ibb.co/exVUS9/Screenshot_20180912_113051.jpg" width="300" height="500">
-### 3
+## 3
 <img src="https://image.ibb.co/hFyin9/Screenshot_20180912_112932.jpg" width="300" height="500">
 
 
