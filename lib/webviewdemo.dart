@@ -10,12 +10,12 @@ class WebViewDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter WebView Demo',
+      title: 'Flutter Payment Demo',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
       routes: {
-        '/': (_) => const MyHomePage(title: 'Flutter WebView Demo'),
+        '/': (_) => const MyHomePage(title: 'Flutter Payment Demo'),
         '/widget': (_) => new WebviewScaffold(
               appBar: new AppBar(
                 title: const Text('Widget webview'),
@@ -38,148 +38,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // This widget is the root of your application.
-
-  int itemId = 10;
-  String token = "abc123";
-  String currency = "usd";
-  String paypal = '''
- <!doctype html>
-<html>
-<head>
- <meta name="viewport" content="width=device-width">
-<title>Untitled Document</title>
-</head>
-<style>
-	
-	body {
-    padding: 10px;
-}
-	
-	.summarydiv {
-    float: left;
-    text-align: center;
-    width: 100%;
-    padding: 20px 0;
-}
-.values-div {
-    float: left;
-    width: 100%;
-    padding: 20px 0;
-    border-bottom: 1px solid #d1d1d1;
-}
-	.valuerightsec1 {
-    float: left;
-    width: 50%;
-    color: #2d2d2d;
-    font-size: 15px;
-		text-align: left;
-}
-		.valuerightsec2 {
-    float: left;
-    width: 50%;
-    color: #2d2d2d;
-    font-size: 15px;
-				text-align: right;
-}
-	.summarydiv img {
-    padding-bottom: 32px;
-}
-.summarydiv h3
-{
-	float:left;
-	width:100%;
-	text-align:center;
-	color:#65BC46;
-}
-.paymentdiv {
-    float: left;
-    width: 100%;
-    text-align: center;
-    margin-top: 30px;
-}
-.paymentdiv button span {
-    background: none;
-    background-image: none;
-}
-.paymentdiv button {
-    background: #65BC46;
-        background-image: none;
-    background-image: none !important;
-}
-.paypalbuttoncus {
-    float: left;
-    width: 100%;
-    margin-top: 30px;
-}
-	</style>
-<body>
-	
-	<div class="summarydiv">
-    <img src="credit-card.png"  alt=""/> 
-	<h3> Summary </h3>
-	
-	<div class="values-div">
-		
-		<div class="valuerightsec1">Item Name</div>
-		<div class="valuerightsec2">Lorem</div>
-		</div>
-		<div class="values-div">
-		<div class="valuerightsec1">Item Price</div>
-		<div class="valuerightsec2">\$5000</div>
-		</div>
-
-
-
-<div id="paypal-button" class="paypalbuttoncus"></div>
-<script src="https://www.paypalobjects.com/api/checkout.js"></script>
-<script>
-paypal.Button.render({
-  // Configure environment
-  env: 'sandbox',
-  client: {
-    sandbox: 'demo_sandbox_client_id',
-    production: 'demo_production_client_id'
-  },
-  // Customize button (optional)
-  locale: 'en_US',
-  style: {
-    size: 'small',
-    color: 'gold',
-    shape: 'pill',
-  },
-  // Set up a payment
-  payment: function (data, actions) {
-    return actions.payment.create({
-      transactions: [{
-        amount: {
-          total: '0.01',
-          currency: 'USD'
-        }
-      }]
-    });
-  },
-  // Execute the payment
-  onAuthorize: function (data, actions) {
-    return actions.payment.execute()
-      .then(function () {
-        // Show a confirmation message to the buyer
-        window.alert('Thank you for your purchase!');
-      });
-  }
-}, '#paypal-button');
-</script>
-
-
-	</div>
-</body>
-</html>
-
-  ''';
+  //fields required for payments
+  String _itemId = "10";
+  String _userToken = "abc123";
+  String _currency = "usd";
 
   // Instance of WebView plugin
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
-
   // On destroy stream
   StreamSubscription _onDestroy;
 
@@ -213,19 +78,20 @@ paypal.Button.render({
         setState(() {
           print('onUrlChanged: $url');
 
-          if (url.contains("test1")) {
-            flutterWebviewPlugin.close();
-            _showDialog("SUCCESSFUL", "assets/success_logo.png");
-          } else if (url.contains("failed")) {
+          if (url.contains("failed")) {
             flutterWebviewPlugin.close();
             _showDialog("UNSUCCESSFUL", "assets/unsuccess_logo.png");
           } else if (url.contains("success")) {
             flutterWebviewPlugin.close();
             _showDialog("SUCCESSFUL", "assets/success_logo.png");
-          } else if (url.contains("stripe") || url.contains("paypal")) {
+          }
+          //check if stripe or paypal page is loaded or not
+          else if (url.contains("stripe") || url.contains("paypal")) {
             //hide progress bar
+
             setState(() {
               _isLoading = false; //hide progress bar
+              //show webpage in full screen
               flutterWebviewPlugin.resize(new Rect.fromLTWH(
                   0.0,
                   0.0,
@@ -243,7 +109,6 @@ paypal.Button.render({
     // Every listener should be canceled, the same should be done with this stream.
     _onDestroy.cancel();
     _onUrlChanged.cancel();
-
     flutterWebviewPlugin.dispose();
 
     super.dispose();
@@ -258,56 +123,57 @@ paypal.Button.render({
       ),
       body: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              new RaisedButton(
-                onPressed: () {
-                  setState(() {
-                    _isLoading = true;
-                  });
-                  String itemId = "10";
-                  String token = "abc123";
-                  String currency = "usd";
-                  String paypalurl =
-                      "http://54.213.174.41/leaftyme/public/api/customer/paypal";
-
-                  flutterWebviewPlugin.launch("$paypalurl",
-                      rect: new Rect.fromLTWH(0.0, 0.0, 0.0, 0.0),
-                      userAgent: kAndroidUserAgent,
-                      headers: {
-                        "token": "$token",
-                        "item_id": "$itemId",
-                        "currency": "$currency"
-                      });
-                },
-                child: const Text('Paypal Payment)'),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: new RaisedButton(
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new RaisedButton(
                   onPressed: () {
                     setState(() {
                       _isLoading = true;
                     });
-
                     String paypalurl =
-                        "http://54.213.174.41/leaftyme/public/api/customer/stripe";
-
+                        "http://54.213.174.41/leaftyme/public/api/customer/paypal";
                     flutterWebviewPlugin.launch("$paypalurl",
                         rect: new Rect.fromLTWH(0.0, 0.0, 0.0, 0.0),
                         userAgent: kAndroidUserAgent,
                         headers: {
-                          "token": "$token",
-                          "item_id": "$itemId",
-                          "currency": "$currency"
+                          "token": "$_userToken",
+                          "item_id": "$_itemId",
+                          "currency": "$_currency"
                         });
                   },
-                  child: const Text('Stripe Payment)'),
+                  child: const Text('Paypal Payment'),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: new RaisedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isLoading = true;
+                      });
+
+                      String paypalurl =
+                          "http://54.213.174.41/leaftyme/public/api/customer/stripe";
+
+                      flutterWebviewPlugin.launch("$paypalurl",
+                          rect: new Rect.fromLTWH(0.0, 0.0, 0.0, 0.0),
+                          userAgent: kAndroidUserAgent,
+                          headers: {
+                            "token": "$_userToken",
+                            "item_id": "$_itemId",
+                            "currency": "$_currency"
+                          });
+                    },
+                    child: const Text('Stripe Payment'),
+                  ),
+                ),
+              ],
+            ),
           ),
-          buildLoading()
+          buildLoading() //show loading
         ],
       ),
     );
