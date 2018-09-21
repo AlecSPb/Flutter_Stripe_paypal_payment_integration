@@ -25,6 +25,9 @@
 ## Success
 <img src="https://image.ibb.co/iO1VZp/Screenshot_20180912_113105.jpg" width="300" height="500">
 
+## Know issue in IOS
+### make sure url doesn't contain any space
+
 
 
 
